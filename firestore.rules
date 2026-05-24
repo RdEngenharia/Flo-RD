@@ -1,0 +1,99 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Catch-all safety nets
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Check ID constraints
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // MATCH: User profile
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      
+      // Abstract schema validation helper
+      function isValidUserProfile(data) {
+        return data.userId is string 
+            && data.userId == request.auth.uid 
+            && data.nome is string 
+            && data.nome.size() >= 2 
+            && data.nome.size() <= 60
+            && data.objetivo is string 
+            && (data.objetivo == 'engravidar' || data.objetivo == 'acompanhar')
+            && data.status_do_dia is string 
+            && data.status_do_dia.size() <= 100
+            && data.historico_infeccao is bool;
+      }
+
+      allow create: if isOwner(userId)
+                    && isValidId(userId)
+                    && incoming().keys().hasAll(['userId', 'nome', 'objetivo', 'status_do_dia', 'historico_infeccao'])
+                    && incoming().keys().size() == 5
+                    && isValidUserProfile(incoming());
+
+      allow update: if isOwner(userId)
+                    && isValidUserProfile(incoming())
+                    && incoming().userId == existing().userId;
+
+      allow delete: if isOwner(userId);
+
+      // MATCH: Notifications History Logs
+      match /notifications/{notificationId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+
+        function isValidNotification(data) {
+          return data.id is string
+              && data.userId == request.auth.uid
+              && data.timestamp is string
+              && data.timestamp.size() <= 100
+              && data.nome is string
+              && data.nome.size() <= 60
+              && data.objetivo is string
+              && data.status_do_dia is string
+              && data.status_do_dia.size() <= 100
+              && data.historico_infeccao is bool
+              && data.texto_notificacao is string
+              && data.texto_notificacao.size() <= 140
+              && data.canal_notificacao_id is string
+              && data.canal_notificacao_id == "ALERTA_SAUDE_FALANTE"
+              && data.verificar_permissao_android is bool
+              && data.isFallback is bool;
+        }
+
+        allow create: if isOwner(userId)
+                      && isValidId(notificationId)
+                      && incoming().keys().hasAll([
+                           'id', 'userId', 'timestamp', 'nome', 'objetivo', 
+                           'status_do_dia', 'historico_infeccao', 'texto_notificacao', 
+                           'canal_notificacao_id', 'verificar_permissao_android', 'isFallback'
+                         ])
+                      && incoming().keys().size() == 11
+                      && isValidNotification(incoming());
+
+        allow update, delete: if false; // System lock: Logs are immutable after generation
+      }
+    }
+  }
+}

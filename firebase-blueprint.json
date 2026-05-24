@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Dados do perfil de saúde e ciclo de cada usuária",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "ID único da usuária correspondente ao Auth UID"
+        },
+        "nome": {
+          "type": "string",
+          "description": "Nome da usuária"
+        },
+        "objetivo": {
+          "type": "string",
+          "enum": ["engravidar", "acompanhar"],
+          "description": "Objetivo de saúde"
+        },
+        "status_do_dia": {
+          "type": "string",
+          "description": "Fase ou status hormonal do dia"
+        },
+        "historico_infeccao": {
+          "type": "boolean",
+          "description": "Se possui propensão a candidíase ou infecções recorrentes"
+        }
+      },
+      "required": ["userId", "nome", "objetivo", "status_do_dia", "historico_infeccao"]
+    },
+    "NotificationHistory": {
+      "title": "NotificationHistory",
+      "description": "Histórico seguro das notificações push preditivas geradas",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID exclusivo do log"
+        },
+        "userId": {
+          "type": "string",
+          "description": "ID correspondente ao Auth UID da dona do log"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Data e hora do prognóstico"
+        },
+        "nome": {
+          "type": "string",
+          "description": "Nome utilizado no input"
+        },
+        "objetivo": {
+          "type": "string",
+          "description": "Objetivo do ciclo de entrada"
+        },
+        "status_do_dia": {
+          "type": "string",
+          "description": "Fase/status de entrada"
+        },
+        "historico_infeccao": {
+          "type": "boolean",
+          "description": "Historial de infecção de entrada"
+        },
+        "texto_notificacao": {
+          "type": "string",
+          "description": "Frase gerada pela Clara IA (máx 120 caracteres)"
+        },
+        "canal_notificacao_id": {
+          "type": "string",
+          "description": "ID do canal Android"
+        },
+        "verificar_permissao_android": {
+          "type": "boolean",
+          "description": "Verificar permissão antes de emitir"
+        },
+        "isFallback": {
+          "type": "boolean",
+          "description": "Indica se foi gerado via simulação local offline"
+        }
+      },
+      "required": ["id", "userId", "timestamp", "nome", "objetivo", "status_do_dia", "historico_infeccao", "texto_notificacao", "canal_notificacao_id", "verificar_permissao_android", "isFallback"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Informações privadas do perfil sincronizado de cada usuária."
+    },
+    "users/{userId}/notifications/{notificationId}": {
+      "schema": "NotificationHistory",
+      "description": "Canal seguro subcoleção com o histórico pessoal de previsões da Clara."
+    }
+  }
+}

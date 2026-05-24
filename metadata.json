@@ -1,0 +1,8 @@
+{
+  "name": "Clara - IA de Notificações Preditivas",
+  "description": "Gerador e simulador de notificações push preditivas de saúde feminina com controle de permissões Android.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

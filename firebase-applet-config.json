@@ -1,0 +1,11 @@
+{
+  "projectId": "flo-rd",
+  "appId": "1:526810068660:web:cae0195685b2f5ff5709e1",
+  "apiKey": "AIzaSyCIEiCFOJpD9tB0Y9UqkSQHQQb14ysinYQ",
+  "authDomain": "flo-rd.firebaseapp.com",
+  "databaseURL": "https://flo-rd-default-rtdb.firebaseio.com",
+  "storageBucket": "flo-rd.firebasestorage.app",
+  "messagingSenderId": "526810068660",
+  "firestoreDatabaseId": "(default)",
+  "measurementId": ""
+}
