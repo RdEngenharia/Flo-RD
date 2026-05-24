@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { UserScenario, ClaraResponsePayload, SavedNotification } from "./types";
-import AndroidLockscreen from "./components/AndroidLockscreen";
-import KotlinCodeGuide from "./components/KotlinCodeGuide";
 import HistoryLogs from "./components/HistoryLogs";
 import { 
   getAuth, 
@@ -597,336 +595,390 @@ export default function App() {
           )}
         </AnimatePresence>
 
-        {/* Core Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Core Mobile-First Layout */}
+        <div className="max-w-2xl mx-auto w-full flex flex-col gap-6" id="app-mobile-view-container">
           
-          {/* LEFT SIDE: Inputs / Presets (7 cols on lg) */}
-          <section className="lg:col-span-7 flex flex-col gap-6" id="input-control-section">
+          {/* AUTHENTICATION PORTAL (Login & Password input form) */}
+          <div id="auth-portal-card" className="bg-white rounded-3xl border border-[#f5dedb] shadow-xs p-6 flex flex-col gap-5 relative overflow-hidden">
             
-            {/* AUTHENTICATION PORTAL (Login & Password input form) */}
-            <div id="auth-portal-card" className="bg-white rounded-3xl border border-[#f5dedb] shadow-xs p-6 flex flex-col gap-5 relative overflow-hidden">
-              
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#ffeff1]/50 rounded-full blur-2xl pointer-events-none"></div>
-              
-              <div className="flex justify-between items-start border-b border-[#fdf3f0] pb-3 gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
-                    <Lock className="w-4 h-4 text-clara-pink-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-semibold text-[#543b35] text-sm">Sua Conta Clara (Firebase Auth)</h3>
-                    <p className="text-[11px] text-gray-400">Sincronize perfil e histórico em múltiplos dispositivos</p>
-                  </div>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#ffeff1]/50 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div className="flex justify-between items-start border-b border-[#fdf3f0] pb-3 gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-clara-pink-600" />
                 </div>
-
-                {user && (
-                  <button
-                    onClick={handleAuthLogout}
-                    className="text-[11px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1 bg-rose-50 px-2.5 py-1 rounded-lg transition-all border border-rose-100 hover:bg-rose-100"
-                  >
-                    <LogOut className="w-3 h-3" />
-                    Sair da Conta
-                  </button>
-                )}
+                <div>
+                  <h3 className="font-display font-semibold text-[#543b35] text-sm">Sua Conta Clara (Firebase Auth)</h3>
+                  <p className="text-[11px] text-gray-400">Sincronize perfil e histórico em múltiplos dispositivos</p>
+                </div>
               </div>
 
-              {authLoading ? (
-                <div className="py-6 flex flex-col items-center justify-center text-center gap-2">
-                  <div className="w-6 h-6 border-2 border-clara-pink-100 border-t-clara-pink-600 animate-spin rounded-full"></div>
-                  <span className="text-xs text-gray-400 font-medium">Verificando segurança do Firebase...</span>
-                </div>
-              ) : !user ? (
-                <div className="flex flex-col gap-4">
-                  <div className="bg-[#fffefe] p-3 rounded-2xl border border-[#fff0ee] shadow-2xs">
-                    <p className="text-[11px] text-[#8e6863] leading-relaxed">
-                      💡 <strong>Acesso Unificado:</strong> Digite seu e-mail e a senha desejada para entrar ou cadastrar-se na hora. Suas previsões e dados hormonais serão salvos exclusivamente e não poderão ser lidos por outros usuários.
-                    </p>
-                  </div>
-
-                  <form onSubmit={isRegistering ? handleAuthRegister : handleAuthLogin} className="flex flex-col gap-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      
-                      {/* Email input */}
-                      <div className="flex flex-col gap-1">
-                        <label className="text-[10px] font-bold text-[#8e6863] flex items-center gap-1">
-                          <Mail className="w-3 h-3" /> E-mail da Usuária
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={authEmail}
-                          onChange={(e) => setAuthEmail(e.target.value)}
-                          placeholder="exemplo@saude.com"
-                          className="bg-[#faf5f3] px-3 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
-                        />
-                      </div>
-
-                      {/* Password input */}
-                      <div className="flex flex-col gap-1">
-                        <label className="text-[10px] font-bold text-[#8e6863] flex items-center gap-1">
-                          <KeyRound className="w-3 h-3" /> Senha (min. 6 dígitos)
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          value={authPassword}
-                          onChange={(e) => setAuthPassword(e.target.value)}
-                          placeholder="Sua senha secreta"
-                          className="bg-[#faf5f3] px-3 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
-                        />
-                      </div>
-
-                    </div>
-
-                    {/* Action buttons slider */}
-                    <div className="flex flex-col sm:flex-row items-center gap-2 mt-2">
-                      <button
-                        type="submit"
-                        className="w-full sm:w-auto flex-1 bg-clara-pink-600 hover:bg-clara-pink-700 text-white font-semibold py-2.5 px-4 rounded-xl text-xs shadow-xs transition-colors"
-                      >
-                        {isRegistering ? "Confirmar Meu Cadastro 🌸" : "Entrar c/ Login e Senha 🔐"}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsRegistering(!isRegistering);
-                          setAuthError(null);
-                        }}
-                        className="text-[11px] font-bold text-clara-pink-600 hover:underline px-3 py-2 shrink-0"
-                      >
-                        {isRegistering ? "Já tenho conta: Fazer Login" : "Criar uma Nova Conta Grátis"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3.5 rounded-2xl flex items-start gap-2.5">
-                    <UserCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-xs font-bold text-blue-900">Sessão Ativa Segura</p>
-                      <p className="text-[11px] text-blue-800 mt-0.5">
-                        Você está autenticada no Firebase com o login: <code className="bg-white/70 px-1 py-0.5 rounded text-[10px] font-bold select-all">{user.email}</code>
-                      </p>
-                    </div>
-                  </div>
-
-
-
-                  {/* Profile data persistent sync actions */}
-                  <div className="flex gap-2 border-t border-[#fdf3f0] pt-3">
-                    <button
-                      type="button"
-                      disabled={profileSaving}
-                      onClick={handleSaveUserProfile}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-lg text-[11px] transition-colors flex items-center gap-1.5 shadow-xs disabled:opacity-55"
-                    >
-                      <Sliders className="w-3.5 h-3.5" />
-                      {profileSaving ? "Gravando dados..." : "Salvar Configurações de Ciclo no Perfil Firestore 💾"}
-                    </button>
-                  </div>
-                </div>
+              {user && (
+                <button
+                  onClick={handleAuthLogout}
+                  className="text-[11px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1 bg-rose-50 px-2.5 py-1 rounded-lg transition-all border border-rose-100 hover:bg-rose-100"
+                >
+                  <LogOut className="w-3 h-3" />
+                  Sair da Conta
+                </button>
               )}
-
             </div>
 
-            {/* Custom Input Form */}
-            <form onSubmit={handleGenerate} className="bg-white rounded-3xl border border-[#f5dedb] shadow-xs p-6 flex flex-col gap-5">
-              
-              <div className="flex items-center gap-1.5 pb-3 border-b border-[#fdf3f0]">
-                <Settings className="w-5 h-5 text-gray-400" />
-                <h3 className="font-display font-semibold text-[#543b35] text-base">Meu Perfil e Sintomas de Hoje</h3>
+            {authLoading ? (
+              <div className="py-6 flex flex-col items-center justify-center text-center gap-2">
+                <div className="w-6 h-6 border-2 border-clara-pink-100 border-t-clara-pink-600 animate-spin rounded-full"></div>
+                <span className="text-xs text-gray-400 font-medium">Verificando segurança do Firebase...</span>
               </div>
-
-              {/* Grid Form Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* Name */}
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="user-name-input" className="text-xs font-bold text-[#5c4945] flex items-center gap-1">
-                    Nome da Usuária
-                  </label>
-                  <input
-                    id="user-name-input"
-                    type="text"
-                    required
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    className="bg-[#faf5f3] px-3.5 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
-                    placeholder="Ex: Mariana, Carolina"
-                  />
+            ) : !user ? (
+              <div className="flex flex-col gap-4">
+                <div className="bg-[#fffefe] p-3 rounded-2xl border border-[#fff0ee] shadow-2xs">
+                  <p className="text-[11px] text-[#8e6863] leading-relaxed">
+                    💡 <strong>Acesso Unificado:</strong> Digite seu e-mail e a senha desejada para entrar ou cadastrar-se na hora. Suas previsões e dados hormonais serão salvos exclusivamente e não poderão ser lidos por outros usuários.
+                  </p>
                 </div>
 
-                {/* Objective Selector */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-[#5c4945]">Objetivo Principal</label>
-                  <div className="flex bg-[#faf5f3] p-1 rounded-xl border border-transparent">
-                    <button
-                      id="opt-engravidar"
-                      type="button"
-                      onClick={() => setObjetivo("engravidar")}
-                      className={`flex-1 py-1 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                        objetivo === "engravidar"
-                          ? "bg-white text-clara-pink-600 shadow-xs"
-                          : "text-gray-500 hover:text-gray-900"
-                      }`}
-                    >
-                      <Baby className="w-3.5 h-3.5" />
-                      Engravidar
-                    </button>
-                    <button
-                      id="opt-acompanhar"
-                      type="button"
-                      onClick={() => setObjetivo("acompanhar")}
-                      className={`flex-1 py-1 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
-                        objetivo === "acompanhar"
-                          ? "bg-white text-clara-pink-600 shadow-xs"
-                          : "text-gray-500 hover:text-gray-900"
-                      }`}
-                    >
-                      <Heart className="w-3.5 h-3.5" />
-                      Acompanhar
-                    </button>
-                  </div>
-                </div>
-
-                {/* Status selector / customized cycle status */}
-                <div className="flex flex-col gap-1.5 sm:col-span-2">
-                  <div className="flex justify-between items-center">
-                    <label htmlFor="status-select" className="text-xs font-bold text-[#5c4945] flex items-center gap-1">
-                      Fase do Ciclo / Status do Dia
-                    </label>
+                <form onSubmit={isRegistering ? handleAuthRegister : handleAuthLogin} className="flex flex-col gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     
+                    {/* Email input */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-[#8e6863] flex items-center gap-1">
+                        <Mail className="w-3 h-3" /> E-mail da Usuária
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={authEmail}
+                        onChange={(e) => setAuthEmail(e.target.value)}
+                        placeholder="exemplo@saude.com"
+                        className="bg-[#faf5f3] px-3 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
+                      />
+                    </div>
+
+                    {/* Password input */}
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold text-[#8e6863] flex items-center gap-1">
+                        <KeyRound className="w-3 h-3" /> Senha (min. 6 dígitos)
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        placeholder="Sua senha secreta"
+                        className="bg-[#faf5f3] px-3 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
+                      />
+                    </div>
+
+                  </div>
+
+                  {/* Action buttons slider */}
+                  <div className="flex flex-col sm:flex-row items-center gap-2 mt-2">
+                    <button
+                      type="submit"
+                      className="w-full sm:w-auto flex-1 bg-clara-pink-600 hover:bg-clara-pink-700 text-white font-semibold py-2.5 px-4 rounded-xl text-xs shadow-xs transition-colors"
+                    >
+                      {isRegistering ? "Confirmar Meu Cadastro 🌸" : "Entrar c/ Login e Senha 🔐"}
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => {
-                        setIsCustomStatus(!isCustomStatus);
-                        if (!isCustomStatus) {
-                          setStatusDoDia("custom");
-                        } else {
-                          setStatusDoDia(PHASE_SUGGESTIONS[0]);
-                        }
+                        setIsRegistering(!isRegistering);
+                        setAuthError(null);
                       }}
-                      className="text-[10px] font-bold text-clara-pink-600 hover:underline inline-flex items-center gap-0.5"
+                      className="text-[11px] font-bold text-clara-pink-600 hover:underline px-3 py-2 shrink-0"
                     >
-                      {isCustomStatus ? "Voltar para lista padrão" : "Digitar Fase Customizada ✍️"}
+                      {isRegistering ? "Já tenho conta: Fazer Login" : "Criar uma Nova Conta Grátis"}
                     </button>
                   </div>
-
-                  {!isCustomStatus ? (
-                    <select
-                      id="status-select"
-                      value={statusDoDia}
-                      onChange={(e) => setStatusDoDia(e.target.value)}
-                      className="bg-[#faf5f3] px-3.5 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-700"
-                    >
-                      {PHASE_SUGGESTIONS.map((phase) => (
-                        <option key={phase} value={phase}>{phase}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <div className="flex gap-2">
-                      <input
-                        id="custom-status-input"
-                        type="text"
-                        required
-                        value={customStatus}
-                        onChange={(e) => setCustomStatus(e.target.value)}
-                        className="flex-1 bg-[#faf5f3] px-3.5 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
-                        placeholder="Ex: Menstruação atrasada em 2 dias, Faltam 3 Dias, TPM intensa"
-                      />
-                    </div>
-                  )}
-                  <p className="text-[10px] text-gray-400 mt-0.5">Define a sintonização hormonal que servirá de insumo para o tom e a regra de negócio do alerta push.</p>
+                </form>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <div className="bg-[#f0f9ff] border border-[#e0f2fe] p-3.5 rounded-2xl flex items-start gap-2.5">
+                  <UserCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-blue-900">Sessão Ativa Segura</p>
+                    <p className="text-[11px] text-blue-800 mt-0.5">
+                      Você está autenticada no Firebase com o login: <code className="bg-white/70 px-1 py-0.5 rounded text-[10px] font-bold select-all">{user.email}</code>
+                    </p>
+                  </div>
                 </div>
 
-                {/* Infection Propensity Checkbox / Switcher */}
-                <div className="sm:col-span-2 border-t border-[#fdf3f0] pt-4 mt-1">
-                  <label className="relative flex items-start gap-3 cursor-pointer select-none">
-                    <input
-                      id="infection-checkbox"
-                      type="checkbox"
-                      checked={historicoInfeccao}
-                      onChange={(e) => setHistoricoInfeccao(e.target.checked)}
-                      className="w-4 h-4 rounded-md text-clara-pink-500 border-gray-300 focus:ring-clara-pink-300 focus:ring-offset-0 mt-0.5"
-                    />
-                    <div>
-                      <span className="text-xs font-bold text-[#3c2a26] flex items-center gap-1.5">
-                        Histórico de Propensão a Infecções (Candidíase/Vaginose)
-                        <span className="text-[9px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.2 rounded-full font-semibold">
-                          Fator Imunitário
-                        </span>
-                      </span>
-                      <p className="text-[10.5px] text-gray-400 mt-1 leading-normal">
-                        Se ativo, Clara ativará comportamentos imunitários preventivos para as fases Pré e Pós-menstrual. Ela lembrará de hábitos de saúde física (água, ventilação) com sensibilidade sutil, sem sugerir remédios.
-                      </p>
-                    </div>
-                  </label>
-                </div>
 
+
+                {/* Profile data persistent sync actions */}
+                <div className="flex gap-2 border-t border-[#fdf3f0] pt-3">
+                  <button
+                    type="button"
+                    disabled={profileSaving}
+                    onClick={handleSaveUserProfile}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 px-3 rounded-lg text-[11px] transition-colors flex items-center gap-1.5 shadow-xs disabled:opacity-55"
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    {profileSaving ? "Gravando dados..." : "Salvar Configurações de Ciclo no Perfil Firestore 💾"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* Custom Input Form */}
+          <form onSubmit={handleGenerate} className="bg-white rounded-3xl border border-[#f5dedb] shadow-xs p-6 flex flex-col gap-5">
+            
+            <div className="flex items-center gap-1.5 pb-3 border-b border-[#fdf3f0]">
+              <Settings className="w-5 h-5 text-gray-400" />
+              <h3 className="font-display font-semibold text-[#543b35] text-base">Meu Perfil e Sintomas de Hoje</h3>
+            </div>
+
+            {/* Grid Form Fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              
+              {/* Name */}
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="user-name-input" className="text-xs font-bold text-[#5c4945] flex items-center gap-1">
+                  Nome da Usuária
+                </label>
+                <input
+                  id="user-name-input"
+                  type="text"
+                  required
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  className="bg-[#faf5f3] px-3.5 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
+                  placeholder="Ex: Mariana, Carolina"
+                />
               </div>
 
-              {/* Action Button Trigger */}
-              <button
-                id="generate-clara-btn"
-                type="submit"
-                disabled={isGenerating}
-                className={`w-full py-4 rounded-2xl font-display font-semibold transition-all relative overflow-hidden flex items-center justify-center gap-2 border shadow-lg ${
-                  isGenerating 
-                    ? "bg-[#faf5f3] border-[#f3e2df] text-gray-400 cursor-not-allowed" 
-                    : "bg-linear-to-tr from-[#f43f5e] to-[#fb923c] text-white hover:shadow-clara-pink-200 border-transparent active:scale-98"
-                }`}
-              >
-                {isGenerating ? (
-                  <>
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-clara-pink-600 animate-spin"></div>
-                    <span>Clara IA está sintonizando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5 animate-pulse text-white" />
-                    <span>Sintonizar Meu Ciclo e Receber Alerta 🌸</span>
-                  </>
-                )}
-              </button>
-
-              {/* Live instructions warning */}
-              {apiError && (
-                <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex gap-2 items-center text-xs text-red-700">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>Erro ao conectar no motor: {apiError}. Continuando com regras de simulação offline.</span>
+              {/* Objective Selector */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-[#5c4945]">Objetivo Principal</label>
+                <div className="flex bg-[#faf5f3] p-1 rounded-xl border border-transparent">
+                  <button
+                    id="opt-engravidar"
+                    type="button"
+                    onClick={() => setObjetivo("engravidar")}
+                    className={`flex-1 py-1 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      objetivo === "engravidar"
+                        ? "bg-white text-clara-pink-600 shadow-xs"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                  >
+                    <Baby className="w-3.5 h-3.5" />
+                    Engravidar
+                  </button>
+                  <button
+                    id="opt-acompanhar"
+                    type="button"
+                    onClick={() => setObjetivo("acompanhar")}
+                    className={`flex-1 py-1 px-3 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      objetivo === "acompanhar"
+                        ? "bg-white text-clara-pink-600 shadow-xs"
+                        : "text-gray-500 hover:text-gray-900"
+                    }`}
+                  >
+                    <Heart className="w-3.5 h-3.5" />
+                    Acompanhar
+                  </button>
                 </div>
+              </div>
+
+              {/* Status selector / customized cycle status */}
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="status-select" className="text-xs font-bold text-[#5c4945] flex items-center gap-1">
+                    Fase do Ciclo / Status do Dia
+                  </label>
+                  
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCustomStatus(!isCustomStatus);
+                      if (!isCustomStatus) {
+                        setStatusDoDia("custom");
+                      } else {
+                        setStatusDoDia(PHASE_SUGGESTIONS[0]);
+                      }
+                    }}
+                    className="text-[10px] font-bold text-clara-pink-600 hover:underline inline-flex items-center gap-0.5"
+                  >
+                    {isCustomStatus ? "Voltar para lista padrão" : "Digitar Fase Customizada ✍️"}
+                  </button>
+                </div>
+
+                {!isCustomStatus ? (
+                  <select
+                    id="status-select"
+                    value={statusDoDia}
+                    onChange={(e) => setStatusDoDia(e.target.value)}
+                    className="bg-[#faf5f3] px-3.5 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-700"
+                  >
+                    {PHASE_SUGGESTIONS.map((phase) => (
+                      <option key={phase} value={phase}>{phase}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="flex gap-2">
+                    <input
+                      id="custom-status-input"
+                      type="text"
+                      required
+                      value={customStatus}
+                      onChange={(e) => setCustomStatus(e.target.value)}
+                      className="flex-1 bg-[#faf5f3] px-3.5 py-2 rounded-xl text-xs font-medium border border-transparent focus:bg-white focus:border-clara-pink-300 outline-hidden transition-all text-gray-800"
+                      placeholder="Ex: Menstruação atrasada em 2 dias, Faltam 3 Dias, TPM intensa"
+                    />
+                  </div>
+                )}
+                <p className="text-[10px] text-gray-400 mt-0.5">Define a sintonização hormonal que servirá de insumo para o tom e a regra de negócio do alerta push.</p>
+              </div>
+
+              {/* Infection Propensity Checkbox / Switcher */}
+              <div className="sm:col-span-2 border-t border-[#fdf3f0] pt-4 mt-1">
+                <label className="relative flex items-start gap-3 cursor-pointer select-none">
+                  <input
+                    id="infection-checkbox"
+                    type="checkbox"
+                    checked={historicoInfeccao}
+                    onChange={(e) => setHistoricoInfeccao(e.target.checked)}
+                    className="w-4 h-4 rounded-md text-clara-pink-500 border-gray-300 focus:ring-clara-pink-300 focus:ring-offset-0 mt-0.5"
+                  />
+                  <div>
+                    <span className="text-xs font-bold text-[#3c2a26] flex items-center gap-1.5">
+                      Histórico de Propensão a Infecções (Candidíase/Vaginose)
+                      <span className="text-[9px] bg-amber-50 text-amber-600 border border-amber-100 px-1.5 py-0.2 rounded-full font-semibold">
+                        Fator Imunitário
+                      </span>
+                    </span>
+                    <p className="text-[10.5px] text-gray-400 mt-1 leading-normal">
+                      Se ativo, Clara ativará comportamentos imunitários preventivos para as fases Pré e Pós-menstrual. Ela lembre de hábitos de saúde física (água, ventilação) com sensibilidade sutil, sem sugerir remédios.
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+            </div>
+
+            {/* Action Button Trigger */}
+            <button
+              id="generate-clara-btn"
+              type="submit"
+              disabled={isGenerating}
+              className={`w-full py-4 rounded-2xl font-display font-semibold transition-all relative overflow-hidden flex items-center justify-center gap-2 border shadow-lg ${
+                isGenerating 
+                  ? "bg-[#faf5f3] border-[#f3e2df] text-gray-400 cursor-not-allowed" 
+                  : "bg-linear-to-tr from-[#f43f5e] to-[#fb923c] text-white hover:shadow-clara-pink-200 border-transparent active:scale-98"
+              }`}
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-clara-pink-600 animate-spin"></div>
+                  <span>Clara IA está sintonizando...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 animate-pulse text-white" />
+                  <span>Sintonizar Meu Ciclo e Receber Alerta 🌸</span>
+                </>
               )}
-            </form>
+            </button>
 
-            {/* Kotlin code details container removed for user clean view */}
-          </section>
+            {/* Live instructions warning */}
+            {apiError && (
+              <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex gap-2 items-center text-xs text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>Erro ao conectar no motor: {apiError}. Continuando com regras de simulação offline.</span>
+              </div>
+            )}
+          </form>
 
-          {/* RIGHT SIDE: Simulated Android Device, Response Inspector, History logs (5 cols on lg) */}
-          <section className="lg:col-span-5 flex flex-col gap-6" id="device-output-section">
-            
-            {/* The smartphone visual screen */}
-            <AndroidLockscreen 
-              payload={apiResult} 
-              scenarioInput={{
-                nome,
-                objetivo,
-                status_do_dia: isCustomStatus ? (customStatus.trim() || "Fase Geral") : statusDoDia,
-                historico_infeccao: historicoInfeccao
-              }} 
-              isGenerating={isGenerating} 
-            />
+          {/* Today's Active Recommendation & Advice Card */}
+          <AnimatePresence mode="wait">
+            {isGenerating ? (
+              <motion.div
+                key="generating-advice-card"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="bg-white rounded-3xl border border-[#eedadb] p-6 text-center flex flex-col items-center justify-center gap-4 shadow-sm"
+              >
+                <div className="relative flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full border-2 border-clara-pink-100 border-t-clara-pink-600 animate-spin"></div>
+                  <Sparkles className="w-5 h-5 text-clara-pink-500 absolute animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-display font-semibold text-[#543b35] text-sm md:text-base animate-pulse">Sintonizando...</h3>
+                  <p className="text-xs text-gray-400 mt-1">Conectando ao motor Clara IA para analisar seu ciclo de hoje</p>
+                </div>
+              </motion.div>
+            ) : apiResult ? (
+              <motion.div
+                key="active-advice-card"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="bg-gradient-to-tr from-[#fff6f5] to-[#fffbfc] border-2 border-clara-pink-200 rounded-3xl p-6 shadow-md flex flex-col gap-4"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#f43f5e] to-[#fb923c] text-white flex items-center justify-center shadow-xs">
+                      <Flower2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-display font-bold text-[#543b35] text-sm">Alerta Sintonizado • Ativo</h4>
+                      <span className="text-[10px] text-clara-pink-600 font-mono font-bold tracking-wider">CLARA SAÚDE • AGORA</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyJSON}
+                    className="text-xs font-bold text-gray-400 hover:text-gray-650 flex items-center gap-1 bg-white border border-[#f3e1dd] px-2.5 py-1 rounded-xl transition-all"
+                    title="Copiar recomendação"
+                  >
+                    {copiedJSON ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedJSON ? "Copiado!" : "Copiar"}</span>
+                  </button>
+                </div>
 
-            {/* Local History logs panel */}
-            <HistoryLogs 
-              logs={logs} 
-              onClear={handleClearHistory} 
-              onRestore={handleRestoreLog} 
-              viewMode="user"
-            />
+                <div className="text-xs sm:text-sm leading-relaxed text-[#3c2a26] font-medium bg-white p-4 sm:p-5 rounded-2xl border border-rose-50/70 italic whitespace-pre-wrap">
+                  "{apiResult.texto_notificacao}"
+                </div>
 
-          </section>
+                <div className="flex items-start gap-2 text-[10.5px] text-[#8e6a64] bg-[#fff5f4]/50 p-2.5 rounded-xl border border-[#fae2e0]">
+                  <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>Esta recomendação faz parte do seu diário de sintonização. Ela foi gerada de forma segura e sintonizada ao seu corpo.</span>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty-advice-card"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="bg-white rounded-3xl border border-[#f5dedb] border-dashed p-8 text-center flex flex-col items-center justify-center gap-2.5 py-10"
+              >
+                <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center text-clara-pink-400 animate-bounce">
+                  <Flower2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-display font-semibold text-[#543b35] text-sm">Aguardando Sintonização</h4>
+                  <span className="text-xs text-gray-400 mt-1 block max-w-xs mx-auto leading-relaxed">
+                    Preencha suas informações de sintomas e clique no botão acima para sintonizar seu ciclo e receber seu diagnóstico Clara!
+                  </span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Local History logs panel */}
+          <HistoryLogs 
+            logs={logs} 
+            onClear={handleClearHistory} 
+            onRestore={handleRestoreLog} 
+            viewMode="user"
+          />
 
         </div>
 
